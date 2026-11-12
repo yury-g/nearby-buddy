@@ -6,9 +6,27 @@ A roomy, four-part prototype enclosure for the **Adafruit 5691 ESP32-S3 Reverse 
 
 [Back to firmware](../README.md) · [Editable OpenSCAD](cad/nearby-buddy.scad) · [Print STLs](stl) · [Dimension sources](DIMENSIONS.md) · [Fit-check results](FIT-CHECK.json)
 
+## Parts and supplies
+
+The [main parts list](../README.md#parts-list-for-two-buddies) links the exact board, selected battery, USB cable and print files, with quantities for a pair. **Per enclosure:** one Adafruit 5691, one 3898 battery (or a separately validated replacement), four printed parts, a thin removable battery-safe adhesive pad and optional lightweight strap/key tether. A larger 50 × 25 × 10 mm battery is shown as a fit envelope only; no larger pack has been selected or electrically qualified.
+
 ## Inspect it before printing
 
-Download the repository ZIP, then double-click **`enclosure/viewer/index.html`**. The [interactive viewer](viewer/index.html) works offline with embedded geometry. Orbit, zoom, explode, hide parts, change shell opacity and switch from the 3898 to a larger battery. GitHub displays HTML source rather than running the viewer. Individual [STL files](stl) also have GitHub's 3D preview.
+Download the repository ZIP, then double-click **`enclosure/viewer/index.html`**. The [interactive viewer](viewer/index.html) works offline with embedded geometry. Orbit, zoom, explode, hide parts, change shell opacity and switch from the 3898 to a larger battery, and choose Blueface or Greenface with its native screen graphic. GitHub displays HTML source rather than running the viewer. Individual [STL files](stl) also have GitHub's 3D preview.
+
+![Nearby Buddy in two printed enclosure colors](images/enclosure-studio.png)
+
+| Front isometric · screen on | Rear isometric · closed |
+| --- | --- |
+| ![Actual Feather CAD and firmware-derived screen](images/front-studio.png) | ![Closed rear lid and locking key](images/rear-studio.png) |
+
+| Interior · shell and lid hidden | Exploded assembly |
+| --- | --- |
+| ![Rear interior with larger battery envelope and lid removed](images/inside-studio.png) | ![Exploded shell, actual Feather and larger battery envelope](images/exploded-studio.png) |
+
+These Blender views use the same vendor board vertices and enclosure meshes as the fit checks. Colors and lighting are visual choices. Screen graphics use Nearby Buddy's native renderer with synthetic telemetry; the battery is a dimensional envelope, not a detailed product model. [Rebuild the renders / editable Blender scene](STUDIO.md).
+
+### Technical inspection views
 
 | Front isometric | Rear isometric |
 | --- | --- |
@@ -61,7 +79,10 @@ python3 enclosure/tools/build.py
 python3 -m venv build/cad-venv
 build/cad-venv/bin/pip install -r enclosure/tools/requirements.txt
 build/cad-venv/bin/python enclosure/tools/verify.py
+build/cad-venv/bin/python enclosure/tools/prepare_studio.py
 python3 enclosure/tools/make_viewer.py
+# Optional studio renders (Blender 4.5 LTS on PATH):
+blender --background --python enclosure/tools/render_studio.py
 ```
 
 The CAD parameters are editable. Changing `bay` alone does not automatically relocate every board support, service channel and joint; inspect and update the dependent geometry, then rerun verification. Preserve the exact vendor reference and its license. The viewer needs no online libraries or accounts.
@@ -120,3 +141,5 @@ secure OTA and production hardening only through measured, documented steps.
 ## License
 
 Original enclosure, scripts, viewer and documentation: [MIT](../LICENSE). Bundled vendor STL and its rendered geometry: © Adafruit Industries under the [included MIT license](reference/ADAFRUIT-LICENSE.txt). Eagle layout was consulted for dimensions; its original license remains with that separate source. Battery dimensional facts are cited in [DIMENSIONS.md](DIMENSIONS.md).
+
+The classic bitmap font used in the screen textures is from Adafruit GFX 1.12.6, under its [included BSD license](reference/ADAFRUIT-GFX-LICENSE.txt).

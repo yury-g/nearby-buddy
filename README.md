@@ -2,17 +2,21 @@
 
 Two small faces become happier as they approach each other. Blueface is quick and exuberant. Greenface has a slower rhythm and an asymmetrical smile.
 
+![Blueface and Greenface on the actual Adafruit Feather CAD](enclosure/images/devices-studio.png)
+
+**CAD-based device renders.** Both boards use Adafruit's actual geometry at the same scale. Their 240 × 135 screens come from Nearby Buddy's firmware renderer; battery and distance values are illustrative. [Editable Blender scene and rendering method](enclosure/STUDIO.md) · [Parts list](#parts-list-for-two-buddies)
+
 ![Blueface and Greenface approach, smile, dance and move apart](docs/images/nearby-buddy-motion.gif)
 
 **18-second illustrated behavior tour.** The faces use the firmware's procedural renderer, expression definitions and damped animation. Board bodies are stylized illustrations. Motion, mood sequencing and screen values are illustrative. The tour shows the intended experience; physical distance and contact detection still need calibration.
 
-[Animated SVG](docs/images/nearby-buddy-motion.svg) · [Device render](docs/images/nearby-buddy-devices.png) · [Firmware](firmware/NearbyBuddy/NearbyBuddy.ino) · [Measured trials](TRIALS.md) · [Download this project](https://github.com/yury-g/nearby-buddy/archive/refs/heads/main.zip)
+[Animated SVG](docs/images/nearby-buddy-motion.svg) · [CAD device render](enclosure/images/devices-studio.png) · [Firmware](firmware/NearbyBuddy/NearbyBuddy.ino) · [Measured trials](TRIALS.md) · [Download this project](https://github.com/yury-g/nearby-buddy/archive/refs/heads/main.zip)
 
 ## Printable enclosure and 3D fit viewer
 
-![Sectioned enclosure showing the Feather and internal battery](enclosure/images/inside-rear.png)
+![Blue and green enclosures with firmware screens](enclosure/images/enclosure-studio.png)
 
-[Enclosure README, print files and prompts](enclosure/README.md) · [Front assembly render](enclosure/images/assembled-front.png) · [Exploded view](enclosure/images/exploded.png) · [Interactive 3D viewer — download and open locally](enclosure/viewer/index.html)
+[Enclosure README, print files and prompts](enclosure/README.md) · [Front assembly render](enclosure/images/front-studio.png) · [Exploded view](enclosure/images/exploded-studio.png) · [Interactive 3D viewer — download and open locally](enclosure/viewer/index.html)
 
 Four printed parts use a keyed sliding lid and removable locking pin. The screen, D0/BOOT, D1, D2 and front RESET remain exposed; the duplicate rear RESET has tool access. A **52 × 27 × 12 mm battery bay** accommodates the selected Adafruit 3898 and a larger **50 × 25 × 10 mm target envelope**. Physical fit remains untested. The viewer contains all geometry and works offline after download; GitHub shows its source rather than running it.
 
@@ -39,12 +43,26 @@ Closed eyes are visual sleep while Bluetooth discovery continues. Dancing is scr
 
 Each board broadcasts a non-connectable Bluetooth LE advertisement and scans for its enrolled partner. It estimates proximity from RSSI, filters the signal and independently chooses an expression. A computer can listen to advertisements. USB provides commands and detailed telemetry.
 
-## Hardware
+## Parts list for two buddies
 
-- Two **Adafruit Feather ESP32-S3 Reverse TFT** boards with 135 × 240 displays and onboard MAX17048 battery gauges.
-- USB data cables and a computer for building, uploading and logging.
-- Adafruit **3898, 3.7 V 400 mAh LiPo**, or another electrically compatible pack that fits the enclosure. Check polarity, charge/discharge ratings and the actual connector before use.
-- A tape measure and a clear surface.
+Quantities below make **one pair** (Blueface + Greenface). Divide by two for a single device. The USB-powered demonstration needs only the two boards, two data cables and a computer; batteries and cases add portability.
+
+| Part / link | Qty. per pair | Purpose and notes |
+| --- | ---: | --- |
+| [Adafruit 5691 ESP32-S3 Reverse TFT Feather](https://www.adafruit.com/product/5691) | 2 | Exact board used here. Includes the 135 × 240 TFT, buttons, BLE radio, LiPo charger and MAX17048 battery gauge. Use the **Reverse TFT** version. |
+| [Adafruit 3898, 3.7 V 400 mAh LiPo](https://www.adafruit.com/product/3898) | 2 | Selected starting battery for portable use. Datasheet maximum pouch: 37 × 17.5 × 8.2 mm; verify actual plug/lead reach during assembly. |
+| [USB-C data cable, Adafruit 4199](https://www.adafruit.com/product/4199) | 2 | USB-C to USB-C example for programming and logging. Choose a data-capable cable/adapter that matches your computer. |
+| [Printed enclosure parts](enclosure/README.md#print-and-assemble) | 2 sets | Each set: one [shell](enclosure/stl/shell.stl), [carrier](enclosure/stl/carrier.stl), [lid](enclosure/stl/lid.stl) and [key](enclosure/stl/key.stl). Eight parts total; no housing screws. |
+| [Joint fit coupon](enclosure/stl/joint-coupon.stl) | 1 initially | Test your printer's rail/key clearance before printing both cases. |
+| [PLA filament — example supplier](https://www.prusa3d.com/category/prusament-pla/) | As needed | First fit prints; use filament compatible with your printer. Inspect the sliced models before printing. |
+
+Also have a computer with two usable USB data ports (or a data hub), a tape measure, calipers, a 3D printer or printing service, and a small amount of removable battery-safe adhesive for retaining the pouch. The CAD allows **0.5 mm** adhesive thickness above the selected 3898; thicker pads need a clearance review. A lightweight cord/strap and key tether are optional; check their fit to the printed eyelet and key hole. These generic supplies are not qualified components.
+
+**Larger batteries:** the case includes a 52 × 27 × 12 mm bay and a 50 × 25 × 10 mm target envelope in the viewer. This is an allowance for choosing a future battery, not a linked or validated larger pack. Check actual dimensions, connector polarity, charge/discharge limits and lead routing before substituting one. Capacity alone does not establish fit.
+
+No separate display, proximity sensor, battery gauge, accelerometer, haptic motor or gamepad is needed for this version. The screen faces are software, and proximity uses the boards' BLE signal strength. [Assembly instructions and dimension sources](enclosure/README.md).
+
+## Board identities
 
 The original enrolled pair is below. USB port names can change after resets.
 

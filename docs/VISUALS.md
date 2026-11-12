@@ -11,3 +11,7 @@ To regenerate on macOS, install Pillow and use a C++17 compiler. Run from the ch
     build/visual-venv/bin/python tools/render_visuals.py
 
 The raster labels use macOS Arial. SVG uses Inter/Arial/sans-serif fallbacks. Other platforms can supply local font paths in the script. Pillow's license is included here. New illustration code and output are MIT licensed.
+
+## Accurate CAD studio and screens
+
+The README now leads with Adafruit CAD geometry staged in Blender and native Nearby Buddy screen pixels. The earlier stylized animation remains a labeled behavior tour. See [enclosure/STUDIO.md](../enclosure/STUDIO.md) for sources, exact screen placement, reproducible scripts, the packed Blender scene and the offline viewer.
