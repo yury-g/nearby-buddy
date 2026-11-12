@@ -1,0 +1,8 @@
+build/
+backup/
+evidence/
+.venv/
+__pycache__/
+*.bin
+*.elf
+*.map

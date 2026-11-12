@@ -1,0 +1,58 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nearby Buddy · enclosure fit viewer</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#edf0f5;color:#20283e;font:15px system-ui,sans-serif}header{padding:24px 30px;border-bottom:1px solid #d7dce6;background:white}h1{margin:0 0 6px;font-size:25px}p{margin:0;line-height:1.5}.tag{color:#6557c0;font-weight:700;font-size:12px;letter-spacing:.08em}main{display:grid;grid-template-columns:290px 1fr;height:calc(100vh - 127px);min-height:600px}aside{padding:24px;background:#fff;overflow:auto}canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}button{border:1px solid #cbd2df;background:#f3f5f9;border-radius:8px;padding:9px 12px;margin:0 5px 8px 0;color:#20283e;cursor:pointer}button:hover{background:#e3e7f1}label{display:block;margin:14px 0}input[type=range]{width:100%;accent-color:#6557c0}input[type=checkbox]{accent-color:#6557c0;margin-right:9px}.note{font-size:12px;color:#57627a;margin:22px 0;line-height:1.6}.swatch{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}h2{font-size:14px;margin-top:25px}.dims{font-size:13px;line-height:1.8;padding:12px;background:#f3f5f9;border-radius:8px}footer{position:fixed;right:24px;bottom:16px;font-size:12px;color:#5a6379;background:#ffffffd9;padding:7px 12px;border-radius:8px}@media(max-width:700px){main{display:block;height:auto}aside{padding:16px}canvas{height:65vh}footer{position:static}}
+</style>
+<header><div class="tag">NEARBY BUDDY / MECHANICAL PROTOTYPE v0.1</div><h1>Look inside before you print.</h1><p>Actual Adafruit Feather geometry · datasheet-size battery · editable enclosure</p></header>
+<main><aside><button id="front">Front iso</button><button id="rear">Rear iso</button><button id="inside">Look inside</button><button id="outside">Exterior</button>
+<label>Explode assembly <input id="explode" type="range" min="0" max="30" value="0"></label>
+<label>Shell opacity <input id="opacity" type="range" min="0" max="100" value="25"></label>
+<div id="parts"></div>
+<label><input id="large" type="checkbox">Show larger 50 × 25 × 10 mm battery</label>
+<label><input id="bay" type="checkbox">Show full battery bay</label>
+<h2>Fit envelope</h2><div class="dims">Body: 77 × 47 × 29 mm<br>Shell including eyelet: 86 × 47 × 29 mm<br>Battery bay: 52 × 27 × 12 mm<br>Adafruit 3898 max: 37 × 17.5 × 8.2 mm<br>PCB: 50.8 × 22.86 × 1.57 mm</div>
+<p class="note">Drag to orbit. Scroll to zoom. Front and rear views reset the camera. Each part can be hidden. Units are millimeters. Battery blocks include pouch clearance geometry, not an electrically validated replacement.</p>
+<p class="note"><strong>Digital fit only.</strong> Print fit, joints, actual plug and wire bends still need physical validation. Board reference © Adafruit Industries, MIT. Enclosure and viewer © Yury Gitman, MIT.</p></aside><canvas id="view" aria-label="Interactive 3D enclosure. Drag to rotate and use the labeled controls to inspect parts."></canvas></main><footer id="status">Loading 3D geometry…</footer>
+<script>
+const DATA=__MESH_DATA__;
+const canvas=document.getElementById('view'),gl=canvas.getContext('webgl',{antialias:true,alpha:false});
+if(!gl)throw Error('WebGL unavailable; use the PNG renders or OpenSCAD instead.');
+const vs=`attribute vec3 p;attribute vec3 n;uniform vec3 right;uniform vec3 up;uniform vec3 forward;uniform vec3 offset;uniform float scale;uniform float aspect;varying vec3 normal;void main(){vec3 q=p+offset-vec3(34.,9.,13.);gl_Position=vec4(dot(q,right)/scale/aspect,dot(q,up)/scale,-dot(q,forward)/250.,1.);normal=n;}`;
+const fs=`precision mediump float;varying vec3 normal;uniform vec4 color;void main(){float light=.42+.38*abs(dot(normalize(normal),normalize(vec3(-.3,-.5,1.))))+.18*abs(dot(normalize(normal),normalize(vec3(1.,.3,.2))));gl_FragColor=vec4(color.rgb*light,color.a);}`;
+function shader(type,s){let sh=gl.createShader(type);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh}
+let prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);
+const U={};for(let n of ['right','up','forward','offset','scale','aspect','color'])U[n]=gl.getUniformLocation(prog,n);
+let pos=gl.getAttribLocation(prog,'p'),norm=gl.getAttribLocation(prog,'n');gl.enableVertexAttribArray(pos);gl.enableVertexAttribArray(norm);
+const colors={shell:[.32,.35,.72],carrier:[.61,.75,.8],lid:[.15,.2,.34],key:[1,.68,.2],board:[.46,.27,.59],battery:[.83,.86,.88],larger:[.94,.6,.2],bay:[.98,.64,.12],plug:[.92,.9,.75],wires:[.9,.14,.2]};
+const labels={shell:'Outer shell',carrier:'Board carrier / battery deck',lid:'Sliding rear lid',key:'Removable locking key',board:'Adafruit 5691 Feather',battery:'Battery envelope',plug:'JST plug allowance',wires:'Conceptual wire route'};
+const offsets={shell:[0,0,1.8],carrier:[0,0,0],lid:[0,0,-2],key:[0,-1,0],board:[0,0,2.4],battery:[0,0,-.8],larger:[0,0,-.8],bay:[0,0,0],plug:[0,0,2.4],wires:[0,0,0]};
+const meshes=[];
+for(const [name,b64] of Object.entries(DATA)){
+ const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0)),d=new DataView(bytes.buffer),count=d.getUint32(80,true),a=new Float32Array(count*18);
+ for(let i=0;i<count;i++){let k=84+i*50;for(let j=0;j<3;j++)for(let c=0;c<3;c++){a[i*18+j*6+c]=d.getFloat32(k+12+j*12+c*4,true);a[i*18+j*6+c+3]=d.getFloat32(k+c*4,true)}}
+ let b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,a,gl.STATIC_DRAW);meshes.push({name,b,count:count*3});
+ if(labels[name]){let l=document.createElement('label'),input=document.createElement('input');input.type='checkbox';input.id='show-'+name;input.checked=true;l.append(input,document.createTextNode(labels[name]));document.getElementById('parts').append(l)}
+}
+let az=-.72,el=.68,zoom=57,drag=false,last=[0,0];
+canvas.onpointerdown=e=>{drag=true;last=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId)};canvas.onpointerup=()=>drag=false;
+canvas.onpointermove=e=>{if(!drag)return;az-=(e.clientX-last[0])*.009;el=Math.max(-1.5,Math.min(1.5,el+(e.clientY-last[1])*.009));last=[e.clientX,e.clientY];draw()};
+canvas.onwheel=e=>{e.preventDefault();zoom=Math.max(25,Math.min(140,zoom*Math.exp(e.deltaY*.001)));draw()};
+document.getElementById('front').onclick=()=>{az=-.72;el=.68;zoom=57;draw()};document.getElementById('rear').onclick=()=>{az=.72;el=-.68;zoom=57;draw()};
+document.getElementById('inside').onclick=()=>{document.getElementById('show-lid').checked=false;document.getElementById('opacity').value=15;az=-.72;el=-.6;draw()};
+document.getElementById('outside').onclick=()=>{document.getElementById('show-lid').checked=true;document.getElementById('opacity').value=100;document.getElementById('explode').value=0;draw()};
+for(let e of document.querySelectorAll('input'))e.oninput=draw;
+function draw(){let dpi=Math.min(devicePixelRatio,2),w=canvas.clientWidth,h=canvas.clientHeight;canvas.width=w*dpi;canvas.height=h*dpi;gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(.925,.94,.965,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+ gl.uniform3fv(U.right,[-Math.sin(az),Math.cos(az),0]);gl.uniform3fv(U.up,[-Math.cos(az)*Math.sin(el),-Math.sin(az)*Math.sin(el),Math.cos(el)]);gl.uniform3fv(U.forward,[Math.cos(az)*Math.cos(el),Math.sin(az)*Math.cos(el),Math.sin(el)]);gl.uniform1f(U.scale,zoom+Number(document.getElementById('explode').value)*1.3);gl.uniform1f(U.aspect,w/h);
+ let explosion=+document.getElementById('explode').value,large=document.getElementById('large').checked;
+ for(let m of [...meshes.filter(m=>m.name!=='shell'&&m.name!=='bay'),...meshes.filter(m=>m.name==='shell'||m.name==='bay')]){
+  if(m.name==='bay'&&!document.getElementById('bay').checked)continue;
+  if(m.name==='larger'&&(!large||!document.getElementById('show-battery').checked))continue;
+  if(m.name==='battery'&&large)continue;
+  if(m.name==='wires'&&(large||explosion>0))continue;
+  if(labels[m.name]&&!document.getElementById('show-'+m.name).checked)continue;
+  let alpha=m.name==='shell'?+document.getElementById('opacity').value/100:m.name==='bay'?.14:1;
+  gl.depthMask(alpha===1);gl.uniform4fv(U.color,[...colors[m.name],alpha]);gl.uniform3fv(U.offset,offsets[m.name].map(v=>v*explosion));gl.bindBuffer(gl.ARRAY_BUFFER,m.b);gl.vertexAttribPointer(pos,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(norm,3,gl.FLOAT,false,24,12);gl.drawArrays(gl.TRIANGLES,0,m.count);
+ }gl.depthMask(true);
+}
+new ResizeObserver(draw).observe(canvas);draw();document.getElementById('status').textContent='Drag to orbit · Scroll to zoom · Offline viewer / no external services';
+</script></html>

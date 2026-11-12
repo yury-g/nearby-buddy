@@ -1,0 +1,11 @@
+{
+  "board_stl": {
+    "source": "https://raw.githubusercontent.com/adafruit/Adafruit_CAD_Parts/main/5691%20Feather%20ESP32%20S3%20Reverse%20TFT/5691%20ESP32%20S3%20Reverse%20TFT%20Feather.stl",
+    "github_blob_sha": "55fb7f2795c7664d6ab06eeeecc8cfb23d3ec53c",
+    "sha256": "1ac8bc4a456451c1314e0e101e73e53eef2431b391937ebdb07040cafe8b4e48",
+    "license": "MIT, Adafruit Industries"
+  },
+  "pcb_layout": "https://github.com/adafruit/Adafruit-ESP32-S3-Reverse-TFT-Feather-PCB",
+  "battery_datasheet": "https://cdn-shop.adafruit.com/product-files/3898/3898_specsheet_LP801735_400mAh_3.7V_20161129.pdf",
+  "checked": "2026-11-11"
+}
